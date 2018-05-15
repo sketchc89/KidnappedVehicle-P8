@@ -65,21 +65,21 @@ int main()
           // j[1] is the data JSON object
 
 
-          if (!pf.initialized()) {
+          if (!pf.Initialized()) {
 
           	// Sense noisy position data from the simulator
 			double sense_x = std::stod(j[1]["sense_x"].get<std::string>());
 			double sense_y = std::stod(j[1]["sense_y"].get<std::string>());
 			double sense_theta = std::stod(j[1]["sense_theta"].get<std::string>());
 
-			pf.init(sense_x, sense_y, sense_theta, sigma_pos);
+			pf.Init(sense_x, sense_y, sense_theta, sigma_pos);
 		  }
 		  else {
 			// Predict the vehicle's next state from previous (noiseless control) data.
 		  	double previous_velocity = std::stod(j[1]["previous_velocity"].get<std::string>());
 			double previous_yawrate = std::stod(j[1]["previous_yawrate"].get<std::string>());
 
-			pf.prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
+			pf.Prediction(delta_t, sigma_pos, previous_velocity, previous_yawrate);
 		  }
 
 		  // receive noisy observation data from the simulator
@@ -111,8 +111,8 @@ int main()
         	}
 
 		  // Update the weights and resample
-		  pf.updateWeights(sensor_range, sigma_landmark, noisy_observations, map);
-		  pf.resample();
+		  pf.UpdateWeights(sensor_range, sigma_landmark, noisy_observations, map);
+		  pf.Resample();
 
 		  // Calculate and output the average weighted error of the particle filter over all time steps so far.
 		  vector<Particle> particles = pf.particles;
@@ -136,9 +136,9 @@ int main()
           msgJson["best_particle_theta"] = best_particle.theta;
 
           //Optional message data used for debugging particle's sensing and associations
-          msgJson["best_particle_associations"] = pf.getAssociations(best_particle);
-          msgJson["best_particle_sense_x"] = pf.getSenseX(best_particle);
-          msgJson["best_particle_sense_y"] = pf.getSenseY(best_particle);
+          msgJson["best_particle_associations"] = pf.GetAssociations(best_particle);
+          msgJson["best_particle_sense_x"] = pf.GetSenseX(best_particle);
+          msgJson["best_particle_sense_y"] = pf.GetSenseY(best_particle);
 
           auto msg = "42[\"best_particle\"," + msgJson.dump() + "]";
           // std::cout << msg << std::endl;
