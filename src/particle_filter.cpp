@@ -21,11 +21,14 @@
 
 void ParticleFilter::Init(double x, double y, double theta, double std[]) {
 	num_particles_ = 100;	
+	
+	//Add gaussian noise
 	std::default_random_engine rnd;
 	std::normal_distribution<double> x_dist(x, std[0]);
 	std::normal_distribution<double> y_dist(y, std[1]);
 	std::normal_distribution<double> t_dist(z, std[2]);
 
+	//Generate particles
 	for (int i=0; i<num_particles_; ++i){
 		Particle cur_particle;
 		cur_particle.id = i;
@@ -35,13 +38,33 @@ void ParticleFilter::Init(double x, double y, double theta, double std[]) {
 		cur_particle.weight = 1.;
 
 		particles.push_back(cur_particle);
-		weights_.push_back(cur_particle.weight);
 	}
 	
+	//Initialization complete
 	is_initialized_ = True;	
 }
 
 void ParticleFilter::Prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
+	
+	double x, y, theta; //Predicted position
+	
+	//Add gaussian noise
+	std::default_random_engine rnd;
+	std::normal_distribution<double> x_dist(x, std_pos[0]);
+	std::normal_distribution<double> y_dist(y, std_pos[1]);
+	std::normal_distribution<double> t_dist(theta, std_pos[2]);
+	
+	//Generate particles
+	for (int i=0; i<num_particles_; ++i){
+		Particle cur_particle;
+		cur_particle.id = i;
+		cur_particle.x = x_dist(rnd);
+		cur_particle.y = y_dist(rnd);
+		cur_particle.theta = t_dist(rnd);
+	
+		particles.push_back(cur_particle);
+	}
+
 	// TODO: Add measurements to each particle and add random Gaussian noise.
 	// NOTE: When adding noise you may find std::normal_distribution and std::default_random_engine useful.
 	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
