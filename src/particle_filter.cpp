@@ -17,7 +17,7 @@
 
 #include "particle_filter.h"
 
-using namespace std;
+//using namespace std;
 
 void ParticleFilter::Init(double x, double y, double theta, double std[]) {
 	// TODO: Set the number of particles. Initialize all particles to first position (based on estimates of 
@@ -25,7 +25,24 @@ void ParticleFilter::Init(double x, double y, double theta, double std[]) {
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
 	num_particles_ = 100;	
-	is_initialized_ = True;
+	std::default_random_engine rnd;
+	std::normal_distribution<double> x_dist(x, std[0]);
+	std::normal_distribution<double> y_dist(y, std[1]);
+	std::normal_distribution<double> t_dist(z, std[2]);
+
+	for (int i=0; i<num_particles_; ++i){
+		Particle cur_particle;
+		cur_particle.id = i;
+		cur_particle.x = x_dist(rnd);
+		cur_particle.y = y_dist(rnd);
+		cur_particle.theta = t_dist(rnd);
+		cur_particle.weight = 1.;
+
+		particles.push_back(cur_particle);
+		weights_.push_back(cur_particle.weight);
+	}
+	
+	is_initialized_ = True;	
 }
 
 void ParticleFilter::Prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
