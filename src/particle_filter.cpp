@@ -87,7 +87,7 @@ void ParticleFilter::DataAssociation(std::vector<LandmarkObs> predicted, std::ve
 
 }
 
-void ParticleFilter::UpdateWeights_(double sensor_range, double std_landmark[], 
+void ParticleFilter::UpdateWeights(double sensor_range, double std_landmark[], 
 		const std::vector<LandmarkObs> &observations, const Map &map_landmarks) {
 	// TODO: Update the weights of each particle using a mult-variate Gaussian distribution. You can read
 	//   more about this distribution here: https://en.wikipedia.org/wiki/Multivariate_normal_distribution
@@ -99,12 +99,46 @@ void ParticleFilter::UpdateWeights_(double sensor_range, double std_landmark[],
 	//   and the following is a good resource for the actual equation to implement (look at equation 
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
+	double distance;
+	for (auto particle=particles.begin(); particle != particle.end(); ++particle()) {
+		//Iterate through landmarks and build landmark vector of landmarks within sensor range
+		std::vector<LandmarkObs> map_predictions;
+		for (auto landmark=landmarks.landmark_list.begin(); landmark != landmarks.landmark_list.end(); ++landmark) {
+			distance = std::sqrt((landmark->x_f - particle->x)**2 +
+								(landmark->y_f - particle->y)**2);
+			if (distance <= sensor_range) {
+				LandmarkObs valid_landmark;
+				valid_landmark.x = landmark->x_f;
+				valid_landmark.y = landmark->y_f;
+				valid_landmark.id = landmark->id_i;
+				map_predictions.push_back(valid_landmark);
+			}
+		}
+
+		// Transform all observations in car reference frame to map reference frame
+		std::vector<LandmarkObs> map_observations;
+		for (auto observation=observations.begin(); observation != observations.end(); ++observation) {
+			LandmarkObs map_observation;
+			map_observation.x = observation->x_f*std::cos(particle->theta) - 
+								observation->y_f*std::sin(particle->theta) +
+								particle->x;
+			map_observation.y = observation->x_f*std::sin(particle->theta) + 
+								observation->y_f*std::cos(particle->theta) +
+								particle->y;
+			map_observation.id = observation->id;
+			map_observations.push_back(map_observation);
+		}
+
+		//Associate predicted position of landmark with closest observed position
+		DataAssociation(map_predictions, map_observations);
+	}
 }
 
 void ParticleFilter::Resample() {
 	// TODO: Resample particles with replacement with probability proportional to their weight. 
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
+
 
 }
 
