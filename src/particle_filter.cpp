@@ -78,9 +78,8 @@ void ParticleFilter::DataAssociation(std::vector<LandmarkObs> predicted, std::ve
 		bool init=false;
 		for (auto feature=observations.begin(); feature != observations.end(); ++feature) {
 			distance = std::sqrt((predicted->x - feature->x)**2 + 
-								(predicted->y - feature->y)**2 + 
-								(predicted->theta - feature->theta)**2);
-			if !init || (distance < min_dist){
+								(predicted->y - feature->y)**2);
+			if (!init || distance < min_dist){
 				min_dist = distance;
 			}
 		}
