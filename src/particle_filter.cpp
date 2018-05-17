@@ -48,6 +48,14 @@ void ParticleFilter::Prediction(double delta_t, double std_pos[], double velocit
 	
 	double x, y, theta; //Predicted position
 	
+	//Predict new position
+	for (auto p; p = particles.begin(); ++p){
+		Particle new_particle;
+		new_particle.x = std::cos(new_particle.theta)*velocity*delta_t;
+		new_particle.y = std::sin(new_particle.theta)*velocity*delta_t;
+		new_particle.theta = new_particle.theta*yaw_rate*delta_t;
+	}
+	
 	//Add gaussian noise
 	std::default_random_engine rnd;
 	std::normal_distribution<double> x_dist(x, std_pos[0]);
