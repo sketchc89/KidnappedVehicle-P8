@@ -41,43 +41,30 @@ void ParticleFilter::Init(double x, double y, double theta, double std[]) {
 	}
 	
 	//Initialization complete
-	is_initialized_ = True;	
+	is_initialized_ = true;	
 }
 
 void ParticleFilter::Prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
 	
-	double x, y, theta; //Predicted position
+	//Generate gaussian noise
+	std::default_random_engine rnd;
+	std::normal_distribution<double> x_dist(0, std_pos[0]);
+	std::normal_distribution<double> y_dist(0, std_pos[1]);
+	std::normal_distribution<double> t_dist(0, std_pos[2]);
 	
 	//Predict new position
-	for (auto p; p = particles.begin(); ++p){
+	for (auto p=particles.begin(); p != particles.end(); ++p){
 		Particle new_particle;
-		new_particle.x = std::cos(new_particle.theta)*velocity*delta_t;
-		new_particle.y = std::sin(new_particle.theta)*velocity*delta_t;
-		new_particle.theta = new_particle.theta*yaw_rate*delta_t;
+		if (yaw_rate < 0.001) {
+			p->x += std::cos(p->theta)*velocity*delta_t + x_dist(rnd);
+			p->y += std::sin(p->theta)*velocity*delta_t + y_dist(rnd);
+			p->theta += t_dist(rnd);
+		} else {
+			p->x += velocity/yaw_rate*(std::sin(p->theta + yaw_rate*delta_t) - std::sin(p->theta)) + x_dist(rnd);
+			p->y += velocity/yaw_rate*(std::cos(p->theta) - std::cos(p->theta + yaw_rate*delta_t)) + y_dist(rnd);
+			p->theta += yaw_rate*delta_t + t_dist(rnd);
+		}
 	}
-	
-	//Add gaussian noise
-	std::default_random_engine rnd;
-	std::normal_distribution<double> x_dist(x, std_pos[0]);
-	std::normal_distribution<double> y_dist(y, std_pos[1]);
-	std::normal_distribution<double> t_dist(theta, std_pos[2]);
-	
-	//Generate particles
-	for (int i=0; i<num_particles_; ++i){
-		Particle cur_particle;
-		cur_particle.id = i;
-		cur_particle.x = x_dist(rnd);
-		cur_particle.y = y_dist(rnd);
-		cur_particle.theta = t_dist(rnd);
-	
-		particles.push_back(cur_particle);
-	}
-
-	// TODO: Add measurements to each particle and add random Gaussian noise.
-	// NOTE: When adding noise you may find std::normal_distribution and std::default_random_engine useful.
-	//  http://en.cppreference.com/w/cpp/numeric/random/normal_distribution
-	//  http://www.cplusplus.com/reference/random/default_random_engine/
-
 }
 
 void ParticleFilter::DataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
@@ -85,6 +72,19 @@ void ParticleFilter::DataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   observed measurement to this particular landmark.
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the UpdateWeights phase.
+	double distance;
+	double min_dist;
+	for (auto prediction=predicted.begin(); prediction != predicted.end(); ++prediction) {
+		bool init=false;
+		for (auto feature=observations.begin(); feature != observations.end(); ++feature) {
+			distance = std::sqrt((predicted->x - feature->x)**2 + 
+								(predicted->y - feature->y)**2 + 
+								(predicted->theta - feature->theta)**2);
+			if !init || (distance < min_dist){
+				min_dist = distance;
+			}
+		}
+	}
 
 }
 
