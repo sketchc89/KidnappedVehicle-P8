@@ -153,7 +153,7 @@ void ParticleFilter::Resample() {
   for (auto particle=particles.begin(); particle != particles.end(); ++particle) {
     weights.push_back(particle->weight);
   }
-  std::discrete_distribution w_dist(weights.begin(), weights.end());
+  std::discrete_distribution<double> w_dist(weights.begin(), weights.end());
   std::vector<Particle> resampled_particles;
 	for (int i=0; i<num_particles_; ++i){
 		Particle new_particle = particles[d(rnd)];
@@ -176,30 +176,30 @@ Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<i
     particle.sense_y = sense_y;
 }
 
-string ParticleFilter::GetAssociations(Particle best)
+std::string ParticleFilter::GetAssociations(Particle best)
 {
-	vector<int> v = best.associations;
-	stringstream ss;
-    copy( v.begin(), v.end(), ostream_iterator<int>(ss, " "));
-    string s = ss.str();
+  std::vector<int> v = best.associations;
+  std::stringstream ss;
+    std::copy( v.begin(), v.end(), std::ostream_iterator<int>(ss, " "));
+    std::string s = ss.str();
     s = s.substr(0, s.length()-1);  // get rid of the trailing space
     return s;
 }
-string ParticleFilter::GetSenseX(Particle best)
+std::string ParticleFilter::GetSenseX(Particle best)
 {
-	vector<double> v = best.sense_x;
-	stringstream ss;
-    copy( v.begin(), v.end(), ostream_iterator<float>(ss, " "));
-    string s = ss.str();
+  std::vector<double> v = best.sense_x;
+	std::stringstream ss;
+    std::copy( v.begin(), v.end(), std::ostream_iterator<float>(ss, " "));
+    std::string s = ss.str();
     s = s.substr(0, s.length()-1);  // get rid of the trailing space
     return s;
 }
-string ParticleFilter::GetSenseY(Particle best)
+std::string ParticleFilter::GetSenseY(Particle best)
 {
-	vector<double> v = best.sense_y;
-	stringstream ss;
-    copy( v.begin(), v.end(), ostream_iterator<float>(ss, " "));
-    string s = ss.str();
+  std::vector<double> v = best.sense_y;
+	std::stringstream ss;
+    std::copy( v.begin(), v.end(), std::ostream_iterator<float>(ss, " "));
+    std::string s = ss.str();
     s = s.substr(0, s.length()-1);  // get rid of the trailing space
     return s;
 }
