@@ -82,9 +82,9 @@ void ParticleFilter::DataAssociation(std::vector<LandmarkObs> predicted, std::ve
 				min_dist = distance;
 				feature->id = prediction->id;
 			}
+
 		}
 	}
-
 }
 
 void ParticleFilter::UpdateWeights(double sensor_range, double std_landmark[], 
@@ -100,6 +100,7 @@ void ParticleFilter::UpdateWeights(double sensor_range, double std_landmark[],
 	//   3.33
 	//   http://planning.cs.uiuc.edu/node99.html
 	double distance;
+  double total_weight=0.0;
 	for (auto particle=particles.begin(); particle != particle.end(); ++particle()) {
 		//Iterate through landmarks and build landmark vector of landmarks within sensor range
 		std::vector<LandmarkObs> map_predictions;
@@ -131,7 +132,20 @@ void ParticleFilter::UpdateWeights(double sensor_range, double std_landmark[],
 
 		//Associate predicted position of landmark with closest observed position
 		DataAssociation(map_predictions, map_observations);
+    for (auto observation=map_observations.begin(); observation != map_observations.end(); ++observation) {
+      for (auto prediction=map_predictions.begin(); prediction != map_predictions.end(); ++prediction) {
+        if (observation->id == prediction->id) {
+          particle->weight = 1.0 / (2*M_PI*std_landmark[0]*std_landmark[1])*
+                             std::exp(-0.5*((prediction->x - observation->x)**2/(std_landmark[0]**2) +
+                                            (prediction->y - observation->y)**2/(std_landmark[1]**2)));
+        }
+      }
+    }
+    total_weight += particle->weight;
 	}
+  for (auto particle=particles.begin(); particle != particles.end(); ++particle) {
+    particle->weight /= total_weight;
+  }
 }
 
 void ParticleFilter::Resample() {
