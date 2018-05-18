@@ -54,7 +54,6 @@ void ParticleFilter::Prediction(double delta_t, double std_pos[], double velocit
 	
 	//Predict new position
 	for (auto p=particles.begin(); p != particles.end(); ++p){
-		Particle new_particle;
 		if (yaw_rate < 0.001) {
 			p->x += std::cos(p->theta)*velocity*delta_t + x_dist(rnd);
 			p->y += std::sin(p->theta)*velocity*delta_t + y_dist(rnd);
@@ -149,10 +148,18 @@ void ParticleFilter::UpdateWeights(double sensor_range, double std_landmark[],
 }
 
 void ParticleFilter::Resample() {
-	// TODO: Resample particles with replacement with probability proportional to their weight. 
-	// NOTE: You may find std::discrete_distribution helpful here.
-	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
-
+  std::default_random_engine rnd;
+  std::vector<double> weights;
+  for (auto particle=particles.begin(); particle != particles.end(); ++particle) {
+    weights.push_back(particle->weight);
+  }
+  std::discrete_distribution w_dist(weights.begin(), weights.end());
+  std::vector<Particle> resampled_particles;
+	for (int i=0; i<num_particles_; ++i){
+		Particle new_particle = particles[d(rnd)];
+		resampled_particles.push_back(new_particle);
+	}
+  particles = resampled_particles;
 
 }
 
