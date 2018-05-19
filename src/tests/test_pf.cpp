@@ -1,13 +1,14 @@
+//#define CATCH_CONFIG_MAIN
+#include "./catch.hpp"
+#include "../particle_filter.cpp"
+const double M_EPS = 0.000001;
 #ifndef M_PI
   #define M_PI 3.1415926535897;
 #endif
-const double M_EPS = 0.000001;
-#include "catch.hpp"
-#include "../particle_filter.cpp"
 
 TEST_CASE("Particle filter", "[particle_filter]") {
   ParticleFilter pf;
-  Approx target = Approx(0.0).epsilon(0.3);
+  Approx target = Approx(0.0).margin(0.3);
 
   double x=0, y=0, theta=0;
   double variance[3] = {0.3, 0.3, 0.01};
