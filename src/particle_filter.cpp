@@ -43,7 +43,6 @@ void ParticleFilter::Init(double x, double y, double theta, double std[]) {
 	//Initialization complete
 	is_initialized_ = true;	
 }
-
 void ParticleFilter::Prediction(double delta_t, double std_pos[], double velocity, double yaw_rate) {
 	
 	//Generate gaussian noise
@@ -81,7 +80,6 @@ void ParticleFilter::DataAssociation(std::vector<LandmarkObs> predicted, std::ve
 				min_dist = distance;
 				feature->id = prediction->id;
 			}
-
 		}
 	}
 }
@@ -160,7 +158,6 @@ void ParticleFilter::Resample() {
 		resampled_particles.push_back(new_particle);
 	}
   particles = resampled_particles;
-
 }
 
 Particle ParticleFilter::SetAssociations(Particle& particle, const std::vector<int>& associations, 
