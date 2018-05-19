@@ -115,6 +115,10 @@ public:
 	const bool Initialized() const {
 		return is_initialized_;
 	}
+
+	const int GetParticleCount() const {
+		return num_particles_;
+	}
 };
 
 
