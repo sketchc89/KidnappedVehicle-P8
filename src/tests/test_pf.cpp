@@ -14,7 +14,7 @@ TEST_CASE("Particle filter", "[particle_filter]") {
 
   SECTION("Initialize particle filter") {
     pf.Init(x, y, theta, variance);
-    REQUIRE(pf.particles.size() == 100);
+    REQUIRE(pf.particles.size() == pf.GetParticleCount());
 
     double sum_x = 0, sum_y = 0, sum_theta = 0;
     for (auto particle=pf.particles.begin(); particle != pf.particles.end(); ++particle) {
@@ -28,15 +28,8 @@ TEST_CASE("Particle filter", "[particle_filter]") {
     REQUIRE(sum_theta/pf.particles.size() == target);
   }
   
-  std::vector<Particle> particles;
-  for (int i=0; i<100; ++i) {
-    Particle p;
-    p.x = 0.0;
-    p.y = 0.0;
-    p.theta = 0.0;
-    particles.push_back(p);
-  }
-  pf.particles = particles;
+  double no_variance[3] = {0.0, 0.0, 0.0};
+  pf.Init(x, y, theta, no_variance);
 
   SECTION("Predict position after movement - yaw rate = 0", "[Prediction]") {
     double dt = 0.1;
@@ -51,6 +44,8 @@ TEST_CASE("Particle filter", "[particle_filter]") {
       sum_y += particle->y;
       sum_theta += particle->theta;
     }
+    // std::cout << "Sum x, y, theta\t" << sum_x << "\t" << sum_y << "\t" 
+    //           << sum_theta << "\t" << pf.particles.size() << "\n";
     REQUIRE(sum_x/pf.particles.size() == Approx(1.0).margin(0.03)); 
     REQUIRE(sum_y/pf.particles.size() == Approx(0.0).margin(0.03)); 
     REQUIRE(sum_theta/pf.particles.size() == Approx(0.0).margin(0.001));
@@ -70,9 +65,44 @@ TEST_CASE("Particle filter", "[particle_filter]") {
       sum_y += particle->y;
       sum_theta += particle->theta;
     }
+    // std::cout << "Sum x, y, theta\t" << sum_x << "\t" << sum_y << "\t" 
+    //           << sum_theta << "\t" << pf.particles.size() << "\n";
     REQUIRE(sum_x/pf.particles.size() == Approx(9.797).margin(0.03)); 
     REQUIRE(sum_y/pf.particles.size() == Approx(1.732).margin(0.03)); 
     REQUIRE(sum_theta/pf.particles.size() == Approx(0.35).margin(0.001));
 
+  }
+
+  SECTION("Resample particles", "[Resample]") {
+    int ratio = 10;
+    std::vector<Particle> resampled_particles;
+    for (int i=0; i<pf.GetParticleCount(); ++i) {
+      Particle p;
+      if (i % ratio == 0) {
+        p.x = 10.0;
+        p.y = 10.0;
+        p.theta = 1.0;
+      } else {
+        p.x = 0.0;
+        p.y = 0.0;
+        p.theta = 0.0;
+      }
+      p.weight = 1;
+      resampled_particles.push_back(p);
+    }
+    pf.particles = resampled_particles;
+  
+    std::vector<Particle> old_particles = pf.particles;
+    pf.Resample();
+    REQUIRE(pf.particles.size() == pf.GetParticleCount());
+    
+    int count = 0;
+    for (auto p = pf.particles.begin(); p != pf.particles.end(); ++p) {
+      if (p->x == 10 && p->y == 10 && p->theta == 1.0) {
+        count++;
+      }
+    }
+    // std::cout << "\nCount:\t"<< count << "\n";
+    REQUIRE(count < 1.5*(pf.GetParticleCount()/ratio));
   }
 }

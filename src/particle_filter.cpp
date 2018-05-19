@@ -20,7 +20,7 @@
 //using namespace std;
 
 void ParticleFilter::Init(double x, double y, double theta, double std[]) {
-	num_particles_ = 100;	
+	num_particles_ = 1000;	
 	
 	//Add gaussian noise
 	std::default_random_engine rnd;
