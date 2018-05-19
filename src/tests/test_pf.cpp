@@ -27,21 +27,23 @@ TEST_CASE("Particle filter", "[particle_filter]") {
     REQUIRE(sum_y/pf.particles.size() == target); 
     REQUIRE(sum_theta/pf.particles.size() == target);
   }
+  
+  std::vector<Particle> particles;
+  for (int i=0; i<100; ++i) {
+    Particle p;
+    p.x = 0.0;
+    p.y = 0.0;
+    p.theta = 0.0;
+    particles.push_back(p);
+  }
+  pf.particles = particles;
+
   SECTION("Predict position after movement - yaw rate = 0", "[Prediction]") {
     double dt = 0.1;
     double sig_pos[3] = {0.3, 0.3, 0.01};
     double v = 10;
     double ydd=0.0;
 
-    std::vector<Particle> particles;
-    for (int i=0; i<100; ++i) {
-      Particle p;
-      p.x = 0.0;
-      p.y = 0.0;
-      p.theta = 0.0;
-      particles.push_back(p);
-    }
-    pf.particles = particles;
     pf.Prediction(dt, sig_pos, v, ydd);
     double sum_x = 0, sum_y = 0, sum_theta = 0;
     for (auto particle=pf.particles.begin(); particle != pf.particles.end(); ++particle) {
@@ -52,6 +54,25 @@ TEST_CASE("Particle filter", "[particle_filter]") {
     REQUIRE(sum_x/pf.particles.size() == Approx(1.0).margin(0.03)); 
     REQUIRE(sum_y/pf.particles.size() == Approx(0.0).margin(0.03)); 
     REQUIRE(sum_theta/pf.particles.size() == Approx(0.0).margin(0.001));
+
+  }
+
+  SECTION("Predict position after movement - yaw rate, aggressive", "[Prediction]") {
+    double dt = 1;
+    double sig_pos[3] = {0.3, 0.3, 0.01};
+    double v = 10;
+    double ydd=0.35; //20 degrees
+
+    pf.Prediction(dt, sig_pos, v, ydd);
+    double sum_x = 0, sum_y = 0, sum_theta = 0;
+    for (auto particle=pf.particles.begin(); particle != pf.particles.end(); ++particle) {
+      sum_x += particle->x;
+      sum_y += particle->y;
+      sum_theta += particle->theta;
+    }
+    REQUIRE(sum_x/pf.particles.size() == Approx(9.797).margin(0.03)); 
+    REQUIRE(sum_y/pf.particles.size() == Approx(1.732).margin(0.03)); 
+    REQUIRE(sum_theta/pf.particles.size() == Approx(0.35).margin(0.001));
 
   }
 }
