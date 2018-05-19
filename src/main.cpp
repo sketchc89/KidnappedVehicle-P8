@@ -102,7 +102,7 @@ int main()
           std::istream_iterator<float>(),
           std::back_inserter(y_sense));
 
-      for(int i = 0; i < x_sense.size(); i++)
+      for(decltype(x_sense.size()) i = 0; i < x_sense.size(); i++)
       {
         LandmarkObs obs;
         obs.x = x_sense[i];
@@ -145,67 +145,47 @@ int main()
       ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
       }
-      weight_sum += particles[i].weight;
+      } else {
+        std::string msg = "42[\"manual\",{}]";
+        ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
       }
-      cout << "highest w " << highest_weight << endl;
-      cout << "average w " << weight_sum/num_particles << endl;
-
-      json msgJson;
-      msgJson["best_particle_x"] = best_particle.x;
-      msgJson["best_particle_y"] = best_particle.y;
-      msgJson["best_particle_theta"] = best_particle.theta;
-
-      //Optional message data used for debugging particle's sensing and associations
-      msgJson["best_particle_associations"] = pf.GetAssociations(best_particle);
-      msgJson["best_particle_sense_x"] = pf.GetSenseX(best_particle);
-      msgJson["best_particle_sense_y"] = pf.GetSenseY(best_particle);
-
-      auto msg = "42[\"best_particle\"," + msgJson.dump() + "]";
-      // std::cout << msg << std::endl;
-      ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
-
       }
-  } else {
-    std::string msg = "42[\"manual\",{}]";
-    ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+
+  });
+
+  // We don't need this since we're not using HTTP but if it's removed the program
+  // doesn't compile :-(
+  h.onHttpRequest([](uWS::HttpResponse *res, uWS::HttpRequest req, char *data, size_t, size_t) {
+      const std::string s = "<h1>Hello world!</h1>";
+      if (req.getUrl().valueLength == 1)
+      {
+      res->end(s.data(), s.length());
+      }
+      else
+      {
+      // i guess this should be done more gracefully?
+      res->end(nullptr, 0);
+      }
+      });
+
+  h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
+      std::cout << "Connected!!!" << std::endl;
+      });
+
+  h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
+      ws.close();
+      std::cout << "Disconnected" << std::endl;
+      });
+
+  int port = 4567;
+  if (h.listen(port))
+  {
+    std::cout << "Listening to port " << port << std::endl;
   }
-}
-
-});
-
-// We don't need this since we're not using HTTP but if it's removed the program
-// doesn't compile :-(
-h.onHttpRequest([](uWS::HttpResponse *res, uWS::HttpRequest req, char *data, size_t, size_t) {
-    const std::string s = "<h1>Hello world!</h1>";
-    if (req.getUrl().valueLength == 1)
-    {
-    res->end(s.data(), s.length());
-    }
-    else
-    {
-    // i guess this should be done more gracefully?
-    res->end(nullptr, 0);
-    }
-    });
-
-h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
-    std::cout << "Connected!!!" << std::endl;
-    });
-
-h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, char *message, size_t length) {
-    ws.close();
-    std::cout << "Disconnected" << std::endl;
-    });
-
-int port = 4567;
-if (h.listen(port))
-{
-  std::cout << "Listening to port " << port << std::endl;
-}
-else
-{
-  std::cerr << "Failed to listen to port" << std::endl;
-  return -1;
-}
-h.run();
+  else
+  {
+    std::cerr << "Failed to listen to port" << std::endl;
+    return -1;
+  }
+  h.run();
 }
