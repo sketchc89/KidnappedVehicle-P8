@@ -110,6 +110,31 @@ TEST_CASE("Particle filter", "[particle_filter]") {
     }
   }
 
+  /* Determined root cause of issue is in UpdateWeights
+  SECTION("Update weights when observations and predictions match exactly and no noise", "[UpdateWeights]"){
+    LandmarkObs obs_0 = {-1, 0.0, 0.0}, 
+                obs_1 = {-1, 1.0, 0.0}, 
+                obs_2 = {-1, 0.0, 1.0}, 
+                obs_3 = {-1, 1.0, 1.0}, 
+                obs_4 = {-1, -1.0, 0.0}, 
+                obs_5 = {-1, 0.0, -1.0}, 
+                obs_6 = {-1, -1.0, -1.0}; 
+    
+    double sensor_range = 10.0;
+    double sigma_landmark[2] = {0.0, 0.0};
+    std::vector<LandmarkObs> observations = {obs_0, obs_1, obs_2, obs_3, obs_4, obs_5, obs_6};
+    Map predictions;
+    read_map_data("./map_data.txt", predictions);
+    for (int i=0; i<pf.GetParticleCount(); ++i) {
+      std::cout << "Particle\t" << i << "\tWeight:\t" << pf.particles[i].weight << "\n";
+    }
+    pf.UpdateWeights(sensor_range, sigma_landmark, observations, predictions);
+    
+    for (int i=0; i<pf.GetParticleCount(); ++i) {
+      std::cout << "Particle\t" << i << "\tWeight:\t" << pf.particles[i].weight << "\n";
+    }
+  }*/
+
   SECTION("Resample particles", "[Resample]") {
     int ratio = 10;
     std::vector<Particle> resampled_particles;
