@@ -1,6 +1,7 @@
 //#define CATCH_CONFIG_MAIN
 #include "./catch.hpp"
 #include "../particle_filter.cpp"
+#include "../helper_functions.h"
 const double M_EPS = 0.000001;
 #ifndef M_PI
   #define M_PI 3.1415926535897;
@@ -71,6 +72,42 @@ TEST_CASE("Particle filter", "[particle_filter]") {
     REQUIRE(sum_y/pf.particles.size() == Approx(1.732).margin(0.03)); 
     REQUIRE(sum_theta/pf.particles.size() == Approx(0.35).margin(0.001));
 
+  }
+
+  
+  SECTION("Associates data when prediction and observation match", "[DataAssociation]") {
+    LandmarkObs obs_0 = {-1, 0.0, 0.0}, pred_0 = {0, 0.0, 0.0}, 
+                obs_1 = {-1, 1.0, 0.0}, pred_1 = {1, 1.0, 0.0},
+                obs_2 = {-1, 0.0, 1.0}, pred_2 = {2, 0.0, 1.0},
+                obs_3 = {-1, 1.0, 1.0}, pred_3 = {3, 1.0, 1.0},
+                obs_4 = {-1, -1.0, 0.0}, pred_4 = {4, -1.0, 0.0},
+                obs_5 = {-1, 0.0, -1.0}, pred_5 = {5, 0.0, -1.0},
+                obs_6 = {-1, -1.0, -1.0}, pred_6 = {6, -1.0, -1.0};
+    
+    
+    std::vector<LandmarkObs> observations = {obs_0, obs_1, obs_2, obs_3, obs_4, obs_5, obs_6};
+    std::vector<LandmarkObs> predictions = {pred_0, pred_1, pred_2, pred_3, pred_4, pred_5, pred_6};
+    pf.DataAssociation(predictions, observations);
+    for (int i = 0; i < observations.size(); ++i) {
+      REQUIRE(observations[i].id == i);
+    }
+  }
+  
+  SECTION("Associates observations with the correct prediction", "[DataAssociation]") {
+    LandmarkObs obs_0 = {-1, 0.3, 0.1}, pred_0 = {0, 0.0, 0.0}, 
+                obs_1 = {-1, 1.3, 0.1}, pred_1 = {1, 1.0, 0.0},
+                obs_2 = {-1, 0.3, 1.0}, pred_2 = {2, 0.0, 1.0},
+                obs_3 = {-1, 1.3, 1.3}, pred_3 = {3, 1.0, 1.0},
+                obs_4 = {-1, -1.3, 0.1}, pred_4 = {4, -1.0, 0.0},
+                obs_5 = {-1, 0.1, -1.3}, pred_5 = {5, 0.0, -1.0},
+                obs_6 = {-1, -1.3, -1.3}, pred_6 = {6, -1.0, -1.0};
+    
+    std::vector<LandmarkObs> observations = {obs_0, obs_1, obs_2, obs_3, obs_4, obs_5, obs_6};
+    std::vector<LandmarkObs> predictions = {pred_0, pred_1, pred_2, pred_3, pred_4, pred_5, pred_6};
+    pf.DataAssociation(predictions, observations);
+    for (int i = 0; i < observations.size(); ++i) {
+      REQUIRE(observations[i].id == i);
+    }
   }
 
   SECTION("Resample particles", "[Resample]") {
