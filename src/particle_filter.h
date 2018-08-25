@@ -24,20 +24,20 @@ struct Particle {
 
 
 class ParticleFilter {
-	
+
 	// Number of particles to draw
-	int num_particles_; 
-	
-	
-	
+	int num_particles_;
+
+
+
 	// Flag, if filter is initialized
 	bool is_initialized_;
-	
+
 	// Vector of weights_ of all particles
 	std::vector<double> weights_;
-	
+
 public:
-	
+
 	// Set of current particles
 	std::vector<Particle> particles;
 
@@ -69,18 +69,18 @@ public:
 	 * @param yaw_rate Yaw rate of car from t to t+1 [rad/s]
 	 */
 	void Prediction(double delta_t, double std_pos[], double velocity, double yaw_rate);
-	
+
+
+	std::vector<LandmarkObs> GenerateValidLandmarks(Particle particle, const Map &map_landmarks, int sensor_range);
+	std::vector<LandmarkObs> TransformVehicleToGlobal(Particle particle, const std::vector<LandmarkObs> &veh_objs);
+	double ParticleWeight(LandmarkObs a, LandmarkObs b, double noise[]);
+	void NormalizeParticleWeights();
+	double DistanceBetweenLandmarks(LandmarkObs a, LandmarkObs b);
+	void MatchObservationToClosestLandmark(Particle &particle, std::vector<LandmarkObs> observations,
+										   std::vector<LandmarkObs> landmarks, double std_landmark[]);
 	/**
-	 * DataAssociation Finds which observations correspond to which landmarks (likely by using
-	 *   a nearest-neighbors data association).
-	 * @param predicted Vector of predicted landmark observations
-	 * @param observations Vector of landmark observations
-	 */
-	void DataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations);
-	
-	/**
-	 * UpdateWeights Updates the weights for each particle based on the likelihood of the 
-	 *   observed measurements. 
+	 * UpdateWeights Updates the weights for each particle based on the likelihood of the
+	 *   observed measurements.
 	 * @param sensor_range Range [m] of sensor
 	 * @param std_landmark[] Array of dimension 2 [Landmark measurement uncertainty [x [m], y [m]]]
 	 * @param observations Vector of landmark observations
@@ -88,7 +88,7 @@ public:
 	 */
 	void UpdateWeights(double sensor_range, double std_landmark[], const std::vector<LandmarkObs> &observations,
 			const Map &map_landmarks);
-	
+
 	/**
 	 * Resample Resamples from the updated set of particles to form
 	 *   the new set of particles.
@@ -102,7 +102,7 @@ public:
 	Particle SetAssociations(Particle& particle, const std::vector<int>& associations,
 		                     const std::vector<double>& sense_x, const std::vector<double>& sense_y);
 
-	
+
 	std::string GetAssociations(Particle best);
 	std::string GetSenseX(Particle best);
 	std::string GetSenseY(Particle best);
