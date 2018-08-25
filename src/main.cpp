@@ -107,6 +107,7 @@ int main()
         LandmarkObs obs;
         obs.x = x_sense[i];
         obs.y = y_sense[i];
+        obs.id = i;
         noisy_observations.push_back(obs);
       }
 
