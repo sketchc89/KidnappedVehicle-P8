@@ -1,8 +1,10 @@
-# Overview
-This repository contains all the code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
+[//]: # (Image References)
 
-#### Submission
-All you will submit is your completed version of `particle_filter.cpp`, which is located in the `src` directory. You should probably do a `git pull` before submitting to verify that your project passes the most up-to-date version of the grading code (there are some parameters in `src/main.cpp` which govern the requirements on accuracy and run time.)
+[flowchart]: ./documentation/algorithm_flowchart.png "Diagram of particle filter algorithm"
+
+# Overview
+---
+This repository contains all the code needed to complete the final project for the Localization course in Udacity's Self-Driving Car Nanodegree.
 
 ## Project Introduction
 Your robot has been kidnapped and transported to a new location! Luckily it has a map of this location, a (noisy) GPS estimate of its initial location, and lots of (noisy) sensor and control data.
@@ -89,6 +91,7 @@ Success! Your particle filter passed!
 ```
 
 # Implementing the Particle Filter
+---
 The directory structure of this repository is as follows:
 
 ```
@@ -129,18 +132,11 @@ You can find the inputs to the particle filter in the `data` directory.
 
 > * Map data provided by 3D Mapping Solutions GmbH.
 
-## Success Criteria
-If your particle filter passes the current grading code in the simulator (you can make sure you have the current version at any time by doing a `git pull`), then you should pass! 
+# Algorithm Description
+---
+![Algorithm Flowchart][flowchart]
 
-The things the grading code is looking for are:
-
-
-1. **Accuracy**: your particle filter should localize vehicle position and yaw to within the values specified in the parameters `max_translation_error` and `max_yaw_error` in `src/main.cpp`.
-
-2. **Performance**: your particle filter should complete execution within the time of 100 seconds.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
-
-
+* Initialization - estimate position from noisy GPS and create a number of particles to represent vehicle position
+* Prediction - predict where each particle would move to given our control input (the movement commands we're sending to the vehicle)
+* Update weights - calculate each particles likelihood of being correct by matching each observation with a known landmark from the map
+* Resample - use the likelihoods calculated in the update weight step to create a new set of particles that are closer to the most likely positions
