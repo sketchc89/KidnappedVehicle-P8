@@ -1,6 +1,7 @@
 [//]: # (Image References)
 
 [flowchart]: ./documentation/algorithm_flowchart.png "Diagram of particle filter algorithm"
+[success]: ./documentation/particle_filter_passed.png "Particle filter success!"
 
 # Overview
 ---
@@ -89,6 +90,8 @@ Your job is to build out the methods in `particle_filter.cpp` until the simulato
 ```
 Success! Your particle filter passed!
 ```
+
+![Success][success]
 
 # Implementing the Particle Filter
 ---
