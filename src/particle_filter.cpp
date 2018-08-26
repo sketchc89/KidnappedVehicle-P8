@@ -74,7 +74,6 @@ std::vector<LandmarkObs> ParticleFilter::GenerateValidLandmarks(Particle particl
       valid_landmark.x = landmark->x_f;
       valid_landmark.y = landmark->y_f;
       valid_landmark.id = landmark->id_i;
-      // std::cout << "\nLandmark " << valid_landmark.id << " x " << valid_landmark.x << " y " << valid_landmark.y;
       valid_landmarks.push_back(valid_landmark);
     }
   }
@@ -95,7 +94,6 @@ std::vector<LandmarkObs> ParticleFilter::TransformVehicleToGlobal(Particle parti
       particle.y;
     glob_obj.id = veh_obj->id;
     glob_objs.push_back(glob_obj);
-    // std::cout << "\nObserved " << glob_obj.id << " x " << glob_obj.x << " y " << glob_obj.y;
   }
   
   return glob_objs;
@@ -130,8 +128,6 @@ void ParticleFilter::MatchObservationToClosestLandmark(Particle &particle,
   std::vector<LandmarkObs> observations, std::vector<LandmarkObs> landmarks, double std_landmark[]) {
   
   bool init;
-  int closest_landmark_id = 0;
-  double closest_landmark_x=0.0, closest_landmark_y=0.0;
   double distance, min_dist;
   
   for (auto observation = observations.begin(); observation != observations.end(); ++observation) {
@@ -143,20 +139,11 @@ void ParticleFilter::MatchObservationToClosestLandmark(Particle &particle,
         init = true;
         min_dist = distance;
         particle.weight = ParticleWeight(*observation, *landmark, std_landmark);
-        closest_landmark_id = landmark->id;
-        closest_landmark_x = landmark->x;
-        closest_landmark_y = landmark->y;
       } else if (distance < min_dist) {
         min_dist = distance;
         particle.weight = ParticleWeight(*observation, *landmark, std_landmark);
-        closest_landmark_id = landmark->id;
-        closest_landmark_x = landmark->x;
-        closest_landmark_y = landmark->y;
       }
     }
-    // std::cout << "\nThe closest landmark to observation " << observation->id << " is landmark " << closest_landmark_id << " with weight " << particle.weight;
-    // std::cout << "\nObservation x\t" << observation->x << "\tlandmark x " << closest_landmark_x;
-    // std::cout << "\nObservation y\t" << observation->y << "\tlandmark y " << closest_landmark_y; 
   }
 }
 
@@ -165,19 +152,11 @@ void ParticleFilter::UpdateWeights(double sensor_range, double std_landmark[],
 
   sensor_range = 100; // testing why landmarks missing
   for (auto particle=particles.begin(); particle != particles.end(); ++particle) {
-    // std::cout << "\nID " << particle->id 
-    //           << "\tWeight " << particle->weight 
-    //           << "\tx " << particle->x 
-    //           << "\ty " << particle->y 
-    //           << "\ttheta " << particle->theta;
   }
   for (auto particle=particles.begin(); particle != particles.end(); ++particle) {
     std::vector<LandmarkObs> valid_landmarks = GenerateValidLandmarks(*particle, map_landmarks, sensor_range);
     std::vector<LandmarkObs> observed_landmarks = TransformVehicleToGlobal(*particle, observations);
     MatchObservationToClosestLandmark(*particle, observed_landmarks, valid_landmarks, std_landmark);
-    // std::cout << "\n\n\nParticle\t" << particle->id << "\tWeight\t" << particle->weight;
-    // std::cout << "\nThe number of valid landmarks is " << valid_landmarks.size();
-    // std::cout << "\nThe number of observed landmarks is " << observed_landmarks.size();
   }
   NormalizeParticleWeights();
 }
